@@ -1,276 +1,180 @@
 # Parte 7: publicación de puertos
 
-<!-- Documentacion requerida (borrar este comentario al terminar):
-- [ ] Qué significa -p 5000:5000
-- [ ] Qué significa -p 8080:5000
-- [ ] Cuál puerto pertenece al host
-- [ ] Cuál puerto pertenece al contenedor
-- [ ] Captura del navegador mostrando la aplicación funcionando
--->
+## Paso: docker run con el puerto 5000
 
-## Paso: Publicar el puerto 5000:5000
-
-**Qué se hizo:**
+**Qué se hizo:** Se ejecutó la aplicación Flask dentro de un contenedor llamado `app-puertos`, publicando el puerto `5000` del contenedor en el puerto `5000` del host.
 
 **Comando ejecutado:**
 
 ```bash
 docker run --name app-puertos -p 5000:5000 laboratorio-flask:1.0
-# abrir http://localhost:5000 y http://localhost:5000/info
 ```
 
-**Explicación (para qué sirve el comando):**
+**Explicación (para qué sirve el comando):** El comando `docker run` crea y ejecuta un contenedor a partir de la imagen `laboratorio-flask:1.0`. La opción `--name app-puertos` asigna un nombre al contenedor y la opción `-p 5000:5000` publica el puerto `5000` del contenedor en el puerto `5000` del host.
 
-**Resultado obtenido** (salida copiada de la terminal o captura):
+El formato utilizado por Docker es:
 
 ```text
-
+-p PUERTO_HOST:PUERTO_CONTENEDOR
 ```
 
-**Reflexión:**
+Por lo tanto, en:
 
-## Paso: Detener y eliminar
+```text
+-p 5000:5000
+```
 
-**Qué se hizo:**
+el primer `5000` corresponde al puerto del host y el segundo `5000` corresponde al puerto del contenedor.
 
-**Comando ejecutado:**
+**Resultado obtenido:**
+
+```text
+* Serving Flask app 'app'
+* Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+* Running on all addresses (0.0.0.0)
+* Running on http://127.0.0.1:5000
+* Running on http://172.17.0.2:5000
+Press CTRL+C to quit
+172.17.0.1 - - [07/Oct/2026 19:26:53] "GET / HTTP/1.1" 200 -
+172.17.0.1 - - [07/Oct/2026 19:26:53] "GET /favicon.ico HTTP/1.1" 404 -
+172.17.0.1 - - [07/Oct/2026 19:29:10] "GET /info HTTP/1.1" 200 -
+```
+
+Debido a que el laboratorio se realizó en GitHub Codespaces, el acceso desde el navegador se hizo mediante la URL reenviada por Codespaces para el puerto `5000`, en lugar de utilizar directamente `http://localhost:5000`.
+
+La página principal se mostró correctamente:
+
+![Aplicación Flask funcionando](evidencias/parte7/puertoNormal.png)
+
+También se verificó la ruta `/info`:
+
+![Ruta info de la aplicación](evidencias/parte7/info.png)
+
+**Reflexión:** La aplicación respondió correctamente tanto en la ruta principal `/` como en `/info`. Los códigos `200` observados en la terminal indican que ambas solicitudes fueron atendidas correctamente. Esto permitió comprobar que el mapeo `5000:5000` hizo accesible desde el host la aplicación que escucha en el puerto `5000` dentro del contenedor.
+
+## Paso: detener y eliminar el contenedor app-puertos
+
+**Qué se hizo:** Se detuvo y posteriormente se eliminó el contenedor `app-puertos`.
+
+**Comandos ejecutados:**
 
 ```bash
 docker stop app-puertos
 docker rm app-puertos
 ```
 
-**Explicación (para qué sirve el comando):**
+**Explicación (para qué sirven los comandos):** `docker stop` detiene un contenedor que está en ejecución, mientras que `docker rm` elimina un contenedor que ya se encuentra detenido.
 
-**Resultado obtenido** (salida copiada de la terminal o captura):
+**Resultado obtenido:**
 
 ```text
-
+app-puertos
+app-puertos
 ```
 
-**Reflexión:**
+**Reflexión:** El contenedor se detuvo y eliminó correctamente. Esto permitió liberar el puerto utilizado y continuar con la siguiente prueba del laboratorio.
 
-## Paso: Otro puerto del host: 8080:5000
+## Paso: docker run con el puerto 8080
 
-**Qué se hizo:**
+**Qué se hizo:** Se ejecutó nuevamente la aplicación Flask en un segundo contenedor llamado `app-puertos-2`, publicando el puerto `5000` del contenedor en el puerto `8080` del host.
 
 **Comando ejecutado:**
 
 ```bash
 docker run --name app-puertos-2 -p 8080:5000 laboratorio-flask:1.0
-# abrir http://localhost:8080
 ```
 
-**Explicación (para qué sirve el comando):**
-
-**Resultado obtenido** (salida copiada de la terminal o captura):
+**Explicación (para qué sirve el comando):** En este caso, la opción:
 
 ```text
-
+-p 8080:5000
 ```
 
-**Reflexión:**
+indica que el puerto `8080` pertenece al host y se conecta con el puerto `5000` del contenedor.
 
-## Paso: Detener y eliminar
+La aplicación Flask no cambió su configuración y continuó escuchando internamente en el puerto `5000`. Únicamente cambió el puerto utilizado desde el host para acceder a ella.
 
-**Qué se hizo:**
+**Resultado obtenido:**
 
-**Comando ejecutado:**
+```text
+* Serving Flask app 'app'
+* Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+* Running on all addresses (0.0.0.0)
+* Running on http://127.0.0.1:5000
+* Running on http://172.17.0.2:5000
+Press CTRL+C to quit
+172.17.0.1 - - [07/Oct/2026 19:31:08] "GET / HTTP/1.1" 200 -
+172.17.0.1 - - [07/Oct/2026 19:31:08] "GET /favicon.ico HTTP/1.1" 404 -
+```
+
+**Reflexión:** La aplicación funcionó correctamente utilizando el puerto `8080` del host, aunque Flask continuó ejecutándose en el puerto `5000` dentro del contenedor. Esto demuestra que el puerto del host y el puerto del contenedor no tienen que ser iguales.
+
+## Paso: detener y eliminar el contenedor app-puertos-2
+
+**Qué se hizo:** Se detuvo y eliminó el segundo contenedor después de completar la prueba.
+
+**Comandos ejecutados:**
 
 ```bash
 docker stop app-puertos-2
 docker rm app-puertos-2
 ```
 
-**Explicación (para qué sirve el comando):**
-
-**Resultado obtenido** (salida copiada de la terminal o captura):
+**Resultado obtenido:**
 
 ```text
-
+app-puertos-2
+app-puertos-2
 ```
 
-**Reflexión:**
+**Reflexión:** El segundo contenedor se detuvo y eliminó correctamente, dejando el entorno preparado para continuar con las siguientes partes del laboratorio.
 
-## Significado de -p 5000:5000 y -p 8080:5000
+## Diferencia entre -p 5000:5000 y -p 8080:5000
 
+En ambos casos, el segundo número corresponde al puerto dentro del contenedor y permanece en `5000`, porque ese es el puerto en el que escucha la aplicación Flask.
+
+En:
+
+```text
+-p 5000:5000
+```
+
+el puerto `5000` del host se conecta con el puerto `5000` del contenedor.
+
+En:
+
+```text
+-p 8080:5000
+```
+
+el puerto `8080` del host se conecta con el puerto `5000` del contenedor.
+
+Por lo tanto, el puerto del host puede cambiar sin necesidad de modificar el puerto interno utilizado por la aplicación.
 
 ## Preguntas de reflexión
 
 1. **¿Por qué no basta con que la aplicación escuche en el puerto 5000 dentro del contenedor?**
 
-   Respuesta: 
+   Porque el puerto dentro del contenedor pertenece a su propio entorno de red. Para poder acceder a la aplicación desde el host, es necesario publicar ese puerto mediante la opción `-p`.
 
 2. **¿Qué función cumple el mapeo de puertos?**
 
-   Respuesta: 
+   El mapeo de puertos permite conectar un puerto del host con un puerto dentro del contenedor. De esta forma, las solicitudes que llegan al puerto publicado del host son dirigidas hacia el puerto donde escucha la aplicación dentro del contenedor.
 
 3. **¿Cuál es la diferencia entre el puerto del host y el puerto del contenedor?**
 
-   Respuesta: 
+   El puerto del host es el puerto utilizado desde fuera del contenedor para acceder al servicio. El puerto del contenedor es el puerto en el que la aplicación escucha internamente.
+
+   Por ejemplo, en:
+
+   ```text
+   -p 8080:5000
+   ```
+
+   `8080` corresponde al host y `5000` corresponde al contenedor.
 
 4. **¿Qué pasaría si dos contenedores intentan usar el mismo puerto del host?**
 
-   Respuesta: 
-
-
----
-
-## Logs e inspección
-
-<!-- Parte 8. Documentar: qué muestra docker logs; para qué sirve docker logs -f; qué tipo de información muestra docker inspect; qué información muestra docker stats. -->
-
-## Paso: Ejecutar en segundo plano y ver logs
-
-**Qué se hizo:**
-
-**Comando ejecutado:**
-
-```bash
-docker run -d --name app-logs -p 5000:5000 laboratorio-flask:1.0
-docker logs app-logs
-docker logs -f app-logs
-# en otra terminal o navegador: http://localhost:5000 y /info
-```
-
-**Explicación (para qué sirve el comando):**
-
-**Resultado obtenido** (salida copiada de la terminal o captura):
-
-```text
-
-```
-
-**Reflexión:**
-
-## Paso: Inspeccionar y revisar recursos
-
-**Qué se hizo:**
-
-**Comando ejecutado:**
-
-```bash
-docker inspect app-logs
-docker stats
-```
-
-**Explicación (para qué sirve el comando):**
-
-**Resultado obtenido** (salida copiada de la terminal o captura):
-
-```text
-
-```
-
-**Reflexión:**
-
-## Paso: Detener y eliminar
-
-**Qué se hizo:**
-
-**Comando ejecutado:**
-
-```bash
-docker stop app-logs
-docker rm app-logs
-```
-
-**Explicación (para qué sirve el comando):**
-
-**Resultado obtenido** (salida copiada de la terminal o captura):
-
-```text
-
-```
-
-**Reflexión:**
-
-### Preguntas de reflexión (logs)
-
-1. **¿Por qué los logs son importantes al trabajar con contenedores?**
-
-   Respuesta: 
-
-2. **¿Qué diferencia hay entre ver logs históricos y logs en tiempo real?**
-
-   Respuesta: 
-
-3. **¿Qué información útil se puede obtener con docker inspect?**
-
-   Respuesta: 
-
-4. **¿Por qué es importante observar el consumo de recursos?**
-
-   Respuesta: 
-
-
----
-
-## Variables de entorno
-
-<!-- Parte 9. Documentar: qué hace la opción -e; qué cambió en la aplicación; por qué no fue necesario reconstruir la imagen; capturas o salidas de ambas ejecuciones. -->
-
-## Paso: Primera ejecución con MENSAJE
-
-**Qué se hizo:**
-
-**Comando ejecutado:**
-
-```bash
-docker run --name app-env -p 5000:5000 -e MENSAJE="Hola desde una variable de entorno" laboratorio-flask:1.0
-# abrir http://localhost:5000
-docker stop app-env
-docker rm app-env
-```
-
-**Explicación (para qué sirve el comando):**
-
-**Resultado obtenido** (salida copiada de la terminal o captura):
-
-```text
-
-```
-
-**Reflexión:**
-
-## Paso: Segunda ejecución con otro MENSAJE
-
-**Qué se hizo:**
-
-**Comando ejecutado:**
-
-```bash
-docker run --name app-env-2 -p 5000:5000 -e MENSAJE="Configuración cambiada sin modificar la imagen" laboratorio-flask:1.0
-# abrir http://localhost:5000
-docker stop app-env-2
-docker rm app-env-2
-```
-
-**Explicación (para qué sirve el comando):**
-
-**Resultado obtenido** (salida copiada de la terminal o captura):
-
-```text
-
-```
-
-**Reflexión:**
-
-### Preguntas de reflexión (variables de entorno)
-
-1. **¿Por qué es útil configurar aplicaciones mediante variables de entorno?**
-
-   Respuesta: 
-
-2. **¿Qué tipo de información podría configurarse así?**
-
-   Respuesta: 
-
-3. **¿Por qué no es buena práctica guardar contraseñas directamente dentro del código?**
-
-   Respuesta: 
-
-4. **¿Qué ventaja tiene usar la misma imagen con diferentes configuraciones?**
-
-   Respuesta: 
-
+   Docker no podría publicar el mismo puerto del host para ambos contenedores al mismo tiempo. Uno de ellos tendría que utilizar otro puerto del host, por ejemplo `8080`, aunque ambos pueden seguir utilizando internamente el mismo puerto `5000`.
