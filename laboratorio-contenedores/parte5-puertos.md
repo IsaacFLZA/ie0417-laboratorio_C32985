@@ -153,7 +153,7 @@ el puerto `8080` del host se conecta con el puerto `5000` del contenedor.
 
 Por lo tanto, el puerto del host puede cambiar sin necesidad de modificar el puerto interno utilizado por la aplicación.
 
-## Preguntas de reflexión
+## Preguntas de reflexión de la Parte 7
 
 1. **¿Por qué no basta con que la aplicación escuche en el puerto 5000 dentro del contenedor?**
 
@@ -179,8 +179,9 @@ Por lo tanto, el puerto del host puede cambiar sin necesidad de modificar el pue
 
    Docker no podría publicar el mismo puerto del host para ambos contenedores al mismo tiempo. Uno de ellos tendría que utilizar otro puerto del host, por ejemplo `8080`, aunque ambos pueden seguir utilizando internamente el mismo puerto `5000`.
 
+---
 
-   # Parte 8: logs e inspección de contenedores
+# Parte 8: logs e inspección de contenedores
 
 ## Logs e inspección
 
@@ -194,9 +195,7 @@ Por lo tanto, el puerto del host puede cambiar sin necesidad de modificar el pue
 docker run -d --name app-logs -p 5000:5000 laboratorio-flask:1.0
 ```
 
-**Explicación (para qué sirve el comando):** La opción `-d` permite ejecutar el contenedor en modo desacoplado o en segundo plano. Esto hace que el contenedor continúe ejecutándose sin mantener ocupada la terminal.
-
-La opción `--name app-logs` asigna el nombre `app-logs` al contenedor y `-p 5000:5000` publica el puerto `5000` para poder acceder a la aplicación.
+**Explicación (para qué sirve el comando):** La opción `-d` permite ejecutar el contenedor en segundo plano. De esta forma, el contenedor continúa funcionando sin mantener ocupada la terminal.
 
 **Resultado obtenido:**
 
@@ -204,7 +203,7 @@ La opción `--name app-logs` asigna el nombre `app-logs` al contenedor y `-p 500
 4a4913e9b05cb79dd8601102ef1bceaf30c616103e5c380903b9de9e23454487
 ```
 
-**Reflexión:** Al utilizar `-d`, Docker devolvió el identificador del contenedor y permitió seguir utilizando la terminal mientras la aplicación continuaba ejecutándose en segundo plano.
+**Reflexión:** Al utilizar `-d`, Docker devolvió el identificador del contenedor y permitió continuar utilizando la terminal mientras la aplicación permanecía activa.
 
 ## Paso: docker logs
 
@@ -216,9 +215,7 @@ La opción `--name app-logs` asigna el nombre `app-logs` al contenedor y `-p 500
 docker logs app-logs
 ```
 
-**Explicación (para qué sirve el comando):** El comando `docker logs` muestra la salida estándar y los mensajes generados por el proceso principal del contenedor.
-
-En este caso permitió observar los mensajes de inicio de Flask y las solicitudes HTTP realizadas a la aplicación.
+**Explicación (para qué sirve el comando):** El comando `docker logs` muestra la salida generada por el proceso principal del contenedor. En este caso permitió observar los mensajes de inicio de Flask y las solicitudes recibidas.
 
 **Resultado obtenido:**
 
@@ -234,9 +231,7 @@ Press CTRL+C to quit
 172.17.0.1 - - [07/Oct/2026 20:00:29] "GET /favicon.ico HTTP/1.1" 404 -
 ```
 
-**Reflexión:** Los logs permitieron comprobar que Flask inició correctamente y que la aplicación recibió una solicitud a la ruta `/`.
-
-El código `200` confirmó que la solicitud fue atendida correctamente. El `404` correspondiente a `/favicon.ico` se debe a que la aplicación no tiene definido un ícono y no afecta su funcionamiento.
+**Reflexión:** Los logs permitieron comprobar que Flask inició correctamente y que la aplicación recibió una solicitud a la ruta `/`. El código `200` confirmó que la solicitud fue atendida correctamente.
 
 ## Paso: docker logs -f
 
@@ -249,8 +244,6 @@ docker logs -f app-logs
 ```
 
 **Explicación (para qué sirve el comando):** La opción `-f` mantiene el comando activo y muestra nuevos mensajes conforme son generados por el contenedor.
-
-Esto permite observar en tiempo real el comportamiento de una aplicación mientras está ejecutándose.
 
 **Resultado obtenido:**
 
@@ -271,8 +264,6 @@ Press CTRL+C to quit
 
 **Reflexión:** Mientras `docker logs -f` permanecía activo, se realizaron nuevas solicitudes a `/` y `/info`. Estas aparecieron inmediatamente en la terminal, demostrando que el comando permite observar los logs en tiempo real.
 
-El comando se mantiene ejecutándose mientras se sigan los logs y se puede salir de esta visualización utilizando `Ctrl+C` sin detener el contenedor.
-
 ## Paso: docker inspect
 
 **Qué se hizo:** Se inspeccionó la configuración y el estado interno del contenedor `app-logs`.
@@ -283,11 +274,13 @@ El comando se mantiene ejecutándose mientras se sigan los logs y se puede salir
 docker inspect app-logs
 ```
 
-**Explicación (para qué sirve el comando):** `docker inspect` muestra información detallada de un contenedor en formato JSON. Entre los datos disponibles se encuentran el estado del contenedor, la imagen utilizada, el comando ejecutado, las variables de entorno, la configuración de red, los puertos, el directorio de trabajo y otros parámetros internos.
+**Explicación (para qué sirve el comando):** `docker inspect` muestra información detallada sobre la configuración y estado de un contenedor en formato JSON.
+
+Entre la información disponible se encuentran el estado, imagen utilizada, comando ejecutado, configuración de red, puertos, variables de entorno y directorio de trabajo.
 
 **Resultado obtenido:**
 
-De la salida obtenida se identificaron, entre otros, los siguientes datos:
+Entre los datos obtenidos se observaron:
 
 ```text
 "Name": "/app-logs"
@@ -325,9 +318,7 @@ y la configuración de red:
 "IPAddress": "172.17.0.2"
 ```
 
-**Reflexión:** `docker inspect` permitió obtener información mucho más detallada que otros comandos. Se pudo confirmar que el contenedor estaba en ejecución, que utilizaba la imagen `laboratorio-flask:1.0`, que ejecutaba `python app.py`, que trabajaba desde `/app` y que el puerto `5000` estaba publicado correctamente.
-
-También se pudo observar que Docker asignó al contenedor una dirección IP interna dentro de su red.
+**Reflexión:** `docker inspect` permitió obtener información más detallada del contenedor. Se pudo confirmar que estaba en ejecución, utilizaba la imagen `laboratorio-flask:1.0`, ejecutaba `python app.py`, trabajaba desde `/app` y tenía publicado el puerto `5000`.
 
 ## Paso: docker stats
 
@@ -339,16 +330,7 @@ También se pudo observar que Docker asignó al contenedor una dirección IP int
 docker stats
 ```
 
-**Explicación (para qué sirve el comando):** El comando `docker stats` muestra estadísticas de uso de recursos de los contenedores en tiempo real.
-
-Entre la información mostrada se encuentran:
-
-- porcentaje de uso de CPU;
-- memoria utilizada y límite disponible;
-- porcentaje de memoria utilizada;
-- tráfico de red;
-- operaciones de entrada y salida;
-- cantidad de procesos.
+**Explicación (para qué sirve el comando):** `docker stats` muestra en tiempo real información sobre el consumo de recursos de los contenedores, incluyendo CPU, memoria, red, entrada y salida de datos y cantidad de procesos.
 
 **Resultado obtenido:**
 
@@ -357,15 +339,11 @@ CONTAINER ID   NAME       CPU %     MEM USAGE / LIMIT     MEM %     NET I/O     
 887f9fab510e   app-logs   0.01%     21.79MiB / 7.756GiB   0.27%     7.42kB / 3.58kB   844kB / 147kB   1
 ```
 
-**Reflexión:** El resultado mostró que el contenedor estaba utilizando una cantidad pequeña de recursos durante la ejecución de la aplicación.
-
-Se observó un uso de CPU de `0.01%`, un consumo de memoria de `21.79 MiB` de un total disponible de `7.756 GiB`, equivalente al `0.27%`, y un único proceso activo.
-
-Esto permite comprobar que `docker stats` es útil para monitorear el consumo de recursos de los contenedores mientras están en funcionamiento.
+**Reflexión:** El resultado mostró que la aplicación utilizaba pocos recursos durante la prueba. Se observó un uso de CPU de `0.01%`, un consumo de memoria de `21.79 MiB` y un solo proceso activo.
 
 ## Paso: detener y eliminar el contenedor
 
-**Qué se hizo:** Se detuvo y eliminó el contenedor después de completar las pruebas de logs e inspección.
+**Qué se hizo:** Se detuvo y eliminó el contenedor después de completar las pruebas.
 
 **Comandos ejecutados:**
 
@@ -381,34 +359,230 @@ app-logs
 app-logs
 ```
 
-**Reflexión:** El contenedor se detuvo y eliminó correctamente después de completar las pruebas. De esta manera se evitó dejar recursos innecesarios ejecutándose y se mantuvo organizado el ambiente de Docker.
+**Reflexión:** El contenedor se detuvo y eliminó correctamente después de completar las pruebas de logs, inspección y consumo de recursos.
 
-## Preguntas de reflexión
+## Preguntas de reflexión de la Parte 8
 
 1. **¿Por qué los logs son importantes al trabajar con contenedores?**
 
-   Los logs permiten observar qué está ocurriendo dentro de una aplicación mientras se ejecuta. Son útiles para detectar errores, verificar que un servicio inició correctamente y revisar las solicitudes que recibe.
-
-   En este ejercicio, los logs permitieron confirmar que Flask estaba activo y que las rutas `/` y `/info` respondieron correctamente.
+   Los logs permiten observar qué está ocurriendo dentro de una aplicación mientras se ejecuta. Son útiles para detectar errores, verificar que un servicio inició correctamente y revisar las solicitudes recibidas.
 
 2. **¿Qué diferencia hay entre ver logs históricos y logs en tiempo real?**
 
-   `docker logs app-logs` muestra los mensajes que el contenedor ha generado hasta el momento en que se ejecuta el comando.
+   `docker logs app-logs` muestra los mensajes generados hasta el momento en que se ejecuta el comando.
 
-   En cambio, `docker logs -f app-logs` continúa ejecutándose y muestra también los nuevos mensajes que se generan posteriormente.
-
-   Esto permitió observar nuevas solicitudes a `/` y `/info` inmediatamente después de realizarlas.
+   En cambio, `docker logs -f app-logs` permanece activo y muestra también los nuevos mensajes que se generan posteriormente.
 
 3. **¿Qué información útil se puede obtener con docker inspect?**
 
-   `docker inspect` permite obtener información detallada sobre la configuración y el estado de un contenedor.
+   `docker inspect` permite consultar información detallada sobre el estado y configuración de un contenedor.
 
-   En este ejercicio se pudo observar el estado `running`, la imagen utilizada, el comando `python app.py`, el directorio de trabajo `/app`, el puerto publicado, la dirección IP interna del contenedor y la configuración de red.
+   En este ejercicio se pudo observar la imagen utilizada, el comando ejecutado, el directorio de trabajo, el estado del contenedor, el puerto publicado y la configuración de red.
 
 4. **¿Por qué es importante observar el consumo de recursos?**
 
-   Observar el consumo de recursos permite identificar si un contenedor está utilizando demasiada CPU, memoria u otros recursos del sistema.
+   Porque permite identificar si un contenedor está utilizando demasiada CPU, memoria u otros recursos del sistema.
 
-   Esto puede ayudar a detectar problemas de rendimiento y a conocer cuánto consume realmente una aplicación.
+   Esto ayuda a detectar posibles problemas de rendimiento y conocer el consumo real de la aplicación.
 
-   En este ejercicio, `docker stats` mostró que la aplicación Flask utilizaba pocos recursos mientras se encontraba ejecutándose.
+---
+
+# Parte 9: variables de entorno
+
+## Variables de entorno
+
+## Paso: ejecutar la aplicación con una variable de entorno
+
+**Qué se hizo:** Se ejecutó la aplicación Flask dentro de un contenedor llamado `app-env`, configurando la variable de entorno `MENSAJE` con el valor `Hola desde una variable de entorno`.
+
+**Comando ejecutado:**
+
+```bash
+docker run --name app-env -p 5000:5000 -e MENSAJE="Hola desde una variable de entorno" laboratorio-flask:1.0
+```
+
+**Explicación (para qué sirve el comando):** La opción `-e` permite definir una variable de entorno dentro del contenedor al momento de ejecutarlo.
+
+En este caso se definió:
+
+```text
+MENSAJE="Hola desde una variable de entorno"
+```
+
+La aplicación Flask utiliza esta variable mediante:
+
+```python
+mensaje = os.environ.get("MENSAJE", "Hola desde Flask en Docker")
+```
+
+Por lo tanto, al existir la variable `MENSAJE`, la aplicación utiliza ese valor en lugar del mensaje predeterminado.
+
+**Resultado obtenido:**
+
+```text
+* Serving Flask app 'app'
+* Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+* Running on all addresses (0.0.0.0)
+* Running on http://127.0.0.1:5000
+* Running on http://172.17.0.2:5000
+Press CTRL+C to quit
+172.17.0.1 - - [07/Oct/2026 20:31:51] "GET / HTTP/1.1" 200 -
+172.17.0.1 - - [07/Oct/2026 20:31:51] "GET /favicon.ico HTTP/1.1" 404 -
+172.17.0.1 - - [07/Oct/2026 20:33:28] "GET / HTTP/1.1" 200 -
+172.17.0.1 - - [07/Oct/2026 20:33:28] "GET /favicon.ico HTTP/1.1" 404 -
+```
+
+La página principal mostró el mensaje configurado mediante la variable de entorno.
+
+![Primera ejecución con variable de entorno](evidencias/parte9/VarEntorno.png)
+
+**Reflexión:** La aplicación inició correctamente y mostró el valor definido en la variable `MENSAJE`. Esto permitió comprobar que el comportamiento de la aplicación puede modificarse al ejecutar el contenedor sin cambiar el código fuente ni reconstruir la imagen.
+
+## Paso: detener y eliminar el contenedor app-env
+
+**Qué se hizo:** Se detuvo y eliminó el contenedor utilizado en la primera prueba.
+
+**Comandos ejecutados:**
+
+```bash
+docker stop app-env
+docker rm app-env
+```
+
+**Resultado obtenido:**
+
+```text
+app-env
+app-env
+```
+
+**Reflexión:** El contenedor se detuvo y eliminó correctamente, permitiendo volver a utilizar el puerto `5000` en la siguiente ejecución.
+
+## Paso: ejecutar la aplicación con otro valor de MENSAJE
+
+**Qué se hizo:** Se ejecutó nuevamente la misma imagen en un nuevo contenedor llamado `app-env-2`, pero utilizando un valor diferente para la variable de entorno `MENSAJE`.
+
+**Comando ejecutado:**
+
+```bash
+docker run --name app-env-2 -p 5000:5000 -e MENSAJE="Configuración cambiada sin modificar la imagen" laboratorio-flask:1.0
+```
+
+**Explicación (para qué sirve el comando):** Se utilizó nuevamente la opción `-e`, pero esta vez asignando otro valor a `MENSAJE`.
+
+El cambio se realizó únicamente en la configuración del contenedor al momento de ejecutarlo. La imagen `laboratorio-flask:1.0` utilizada fue la misma que en la primera prueba.
+
+**Resultado obtenido:**
+
+```text
+* Serving Flask app 'app'
+* Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+* Running on all addresses (0.0.0.0)
+* Running on http://127.0.0.1:5000
+* Running on http://172.17.0.2:5000
+Press CTRL+C to quit
+172.17.0.1 - - [07/Oct/2026 20:35:54] "GET / HTTP/1.1" 200 -
+172.17.0.1 - - [07/Oct/2026 20:35:54] "GET /favicon.ico HTTP/1.1" 404 -
+```
+
+La página principal mostró el nuevo valor configurado:
+
+```text
+Configuración cambiada sin modificar la imagen
+```
+
+![Segunda ejecución con variable de entorno](evidencias/parte9/cambio.png)
+
+**Reflexión:** La segunda ejecución utilizó exactamente la misma imagen de Docker, pero el mensaje mostrado por la aplicación cambió. Esto demuestra que una variable de entorno permite modificar la configuración de una aplicación sin alterar la imagen ni el código fuente.
+
+## Paso: detener y eliminar el contenedor app-env-2
+
+**Qué se hizo:** Se detuvo y eliminó el segundo contenedor después de completar la prueba.
+
+**Comandos ejecutados:**
+
+```bash
+docker stop app-env-2
+docker rm app-env-2
+```
+
+**Resultado obtenido:**
+
+```text
+app-env-2
+app-env-2
+```
+
+**Reflexión:** Después de verificar el cambio de configuración, el contenedor se detuvo y eliminó correctamente.
+
+## Qué hace la opción -e
+
+La opción `-e` de `docker run` permite definir variables de entorno dentro de un contenedor.
+
+Por ejemplo:
+
+```bash
+-e MENSAJE="Hola desde una variable de entorno"
+```
+
+crea dentro del contenedor una variable llamada `MENSAJE` con el valor especificado.
+
+La aplicación puede leer esa variable durante su ejecución y utilizarla para cambiar su comportamiento.
+
+## Qué cambió en la aplicación
+
+En la primera ejecución se utilizó:
+
+```text
+MENSAJE="Hola desde una variable de entorno"
+```
+
+por lo que la página principal mostró ese texto.
+
+En la segunda ejecución se utilizó:
+
+```text
+MENSAJE="Configuración cambiada sin modificar la imagen"
+```
+
+y la página mostró el nuevo contenido.
+
+El código de `app.py` no fue modificado entre ambas ejecuciones.
+
+## Por qué no fue necesario reconstruir la imagen
+
+No fue necesario ejecutar nuevamente `docker build` porque el cambio se realizó mediante una variable de entorno al crear el contenedor.
+
+La imagen `laboratorio-flask:1.0` ya contiene el código necesario para consultar la variable `MENSAJE`:
+
+```python
+mensaje = os.environ.get("MENSAJE", "Hola desde Flask en Docker")
+```
+
+Por lo tanto, distintos contenedores pueden utilizar la misma imagen y recibir diferentes configuraciones al momento de ejecutarse.
+
+## Preguntas de reflexión de la Parte 9
+
+1. **¿Por qué es útil configurar aplicaciones mediante variables de entorno?**
+
+   Porque permiten cambiar ciertos valores de configuración sin modificar el código fuente ni reconstruir la imagen.
+
+   En este ejercicio fue posible cambiar el mensaje mostrado por la aplicación simplemente utilizando otro valor de `MENSAJE` al ejecutar el contenedor.
+
+2. **¿Qué tipo de información podría configurarse así?**
+
+   Se pueden configurar valores que dependen del entorno donde se ejecuta la aplicación, por ejemplo puertos, nombres de servicios, direcciones de servidores, modos de ejecución o parámetros de conexión.
+
+3. **¿Por qué no es buena práctica guardar contraseñas directamente dentro del código?**
+
+   Porque una contraseña escrita directamente en el código queda almacenada junto con el proyecto y puede terminar incluida en el repositorio o en la imagen construida.
+
+   Esto aumenta el riesgo de exponer información sensible y hace más difícil cambiarla sin modificar el código.
+
+4. **¿Qué ventaja tiene usar la misma imagen con diferentes configuraciones?**
+
+   Permite reutilizar una sola imagen para distintos entornos o necesidades sin tener que construir una imagen diferente para cada caso.
+
+   En este ejercicio, `laboratorio-flask:1.0` se utilizó dos veces y produjo mensajes distintos únicamente cambiando la variable de entorno `MENSAJE`.
