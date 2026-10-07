@@ -338,3 +338,294 @@ Esta forma de comunicación resulta más conveniente porque las direcciones IP i
    Un ejemplo sería una aplicación web ejecutándose en un contenedor y una base de datos ejecutándose en otro.
 
    También podrían conectarse un servidor web, una API, un sistema de caché como Redis y una base de datos, manteniendo cada servicio separado pero permitiendo la comunicación entre ellos mediante una red Docker.
+
+   # Parte 13: comunicación entre servicios
+
+## Comunicación entre servicios
+
+## Paso: crear la red red-app
+
+**Qué se hizo:** Se creó una red personalizada de Docker llamada `red-app` para permitir la comunicación entre el contenedor Redis y el contenedor cliente.
+
+**Comando ejecutado:**
+
+```bash
+docker network create red-app
+```
+
+**Explicación (para qué sirve el comando):** El comando `docker network create` permite crear una red personalizada en Docker. Los contenedores conectados a esta red pueden comunicarse entre sí.
+
+**Resultado obtenido:**
+
+```text
+7e4389b7eb8f3e8162eb4ef762df60b6ca09993d64fe3d2ffc77c2435765e0ce
+```
+
+**Reflexión:** La red se creó correctamente y quedó disponible para conectar los servicios utilizados en esta parte del laboratorio.
+
+## Paso: ejecutar el contenedor Redis
+
+**Qué se hizo:** Se ejecutó un contenedor llamado `redis-lab` utilizando la imagen de Redis y se conectó a la red `red-app`.
+
+**Comando ejecutado:**
+
+```bash
+docker run -d --name redis-lab --network red-app redis
+```
+
+**Explicación (para qué sirve el comando):** `docker run` crea y ejecuta un contenedor a partir de una imagen. La opción `-d` permite ejecutarlo en segundo plano, `--name redis-lab` asigna el nombre del contenedor y `--network red-app` lo conecta a la red creada anteriormente.
+
+**Resultado obtenido:**
+
+```text
+475e117702e551b4f7f7e265a2ba2f5b4fd9047f6d8ab9d212a99f4ab34c78c0
+```
+
+**Reflexión:** Redis quedó ejecutándose como un servicio independiente dentro de la red `red-app`.
+
+## Paso: verificar que Redis está en ejecución
+
+**Comando ejecutado:**
+
+```bash
+docker ps
+```
+
+**Explicación (para qué sirve el comando):** `docker ps` permite listar los contenedores que se encuentran actualmente en ejecución.
+
+**Resultado obtenido:**
+
+```text
+CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS         PORTS      NAMES
+475e117702e5   redis     "docker-entrypoint.s…"   6 seconds ago   Up 6 seconds   6379/tcp   redis-lab
+```
+
+**Reflexión:** La salida confirmó que `redis-lab` estaba activo y que Redis estaba disponible en su puerto interno `6379`.
+
+## Paso: ejecutar el cliente Redis
+
+**Qué se hizo:** Se ejecutó un segundo contenedor llamado `cliente-redis`, conectado a la misma red `red-app`, utilizando `redis-cli` para comunicarse con el servidor Redis.
+
+**Comando ejecutado:**
+
+```bash
+docker run -it --name cliente-redis --network red-app redis redis-cli -h redis-lab
+```
+
+**Explicación (para qué sirve el comando):** El comando crea un contenedor interactivo y ejecuta `redis-cli`.
+
+La opción:
+
+```text
+-h redis-lab
+```
+
+indica que el cliente debe conectarse al servidor cuyo nombre es `redis-lab`.
+
+Como ambos contenedores se encuentran en la misma red Docker, el nombre del contenedor puede utilizarse como referencia para establecer la comunicación.
+
+**Resultado obtenido:**
+
+```text
+redis-lab:6379>
+```
+
+**Reflexión:** El cliente logró conectarse al servicio Redis utilizando el nombre del contenedor en lugar de una dirección IP.
+
+## Paso: comprobar la conexión con PING
+
+**Comando ejecutado:**
+
+```text
+ping
+```
+
+**Resultado obtenido:**
+
+```text
+PONG
+```
+
+**Explicación:** El comando `PING` se utiliza para verificar si el servidor Redis está respondiendo correctamente.
+
+La respuesta `PONG` confirma que existe comunicación entre el cliente y el servidor Redis.
+
+**Reflexión:** Esta prueba confirmó que ambos contenedores podían comunicarse correctamente dentro de la misma red.
+
+## Paso: guardar un valor en Redis
+
+**Comando ejecutado:**
+
+```text
+set curso IE0417
+```
+
+**Resultado obtenido:**
+
+```text
+OK
+```
+
+**Explicación:** El comando `SET` permite almacenar un valor asociado a una clave.
+
+En este caso, la clave fue:
+
+```text
+curso
+```
+
+y el valor almacenado fue:
+
+```text
+IE0417
+```
+
+**Reflexión:** Redis almacenó correctamente el valor y respondió con `OK`.
+
+## Paso: consultar el valor almacenado
+
+**Comando ejecutado:**
+
+```text
+get curso
+```
+
+**Resultado obtenido:**
+
+```text
+"IE0417"
+```
+
+**Explicación:** El comando `GET` permite consultar el valor almacenado en una clave específica.
+
+**Reflexión:** La respuesta confirmó que el valor se había almacenado correctamente y podía recuperarse desde el cliente.
+
+## Paso: salir del cliente Redis
+
+**Comando ejecutado:**
+
+```text
+exit
+```
+
+**Explicación:** El comando `exit` finaliza la sesión de `redis-cli` y permite regresar a la terminal principal.
+
+## Paso: detener y eliminar el servidor Redis
+
+**Comandos ejecutados:**
+
+```bash
+docker stop redis-lab
+docker rm redis-lab
+```
+
+**Resultado obtenido:**
+
+```text
+redis-lab
+redis-lab
+```
+
+**Reflexión:** El servidor Redis fue detenido y eliminado después de completar las pruebas.
+
+## Paso: eliminar el cliente Redis
+
+**Comando ejecutado:**
+
+```bash
+docker rm cliente-redis
+```
+
+**Resultado obtenido:**
+
+```text
+cliente-redis
+```
+
+**Reflexión:** El contenedor utilizado como cliente también fue eliminado correctamente.
+
+## Paso: eliminar la red
+
+**Comando ejecutado:**
+
+```bash
+docker network rm red-app
+```
+
+**Resultado obtenido:**
+
+```text
+red-app
+```
+
+**Reflexión:** La red personalizada se eliminó después de retirar los contenedores que la estaban utilizando.
+
+## Qué es Redis en este ejemplo
+
+Redis representa un servicio separado que puede ser utilizado por otra aplicación o contenedor para almacenar y consultar información.
+
+En esta práctica se utilizó para demostrar cómo dos servicios diferentes pueden comunicarse dentro de una red Docker.
+
+## Qué representa redis-lab
+
+`redis-lab` es el contenedor encargado de ejecutar el servidor Redis.
+
+Este contenedor representa un servicio independiente al que otros contenedores pueden conectarse.
+
+## Cómo se conectó el cliente al servidor
+
+El contenedor `cliente-redis` se conectó al servidor utilizando:
+
+```bash
+redis-cli -h redis-lab
+```
+
+El nombre `redis-lab` pudo utilizarse porque ambos contenedores estaban conectados a la red `red-app`.
+
+Docker se encarga de resolver el nombre del contenedor dentro de la red.
+
+## Qué significa recibir PONG
+
+La respuesta:
+
+```text
+PONG
+```
+
+indica que el servidor Redis recibió correctamente el comando `PING` y respondió al cliente.
+
+Esto demuestra que existe comunicación entre ambos servicios.
+
+## Qué enseñanza deja este ejemplo sobre aplicaciones con varios contenedores
+
+Este ejercicio demuestra que una aplicación puede dividirse en varios servicios independientes.
+
+Un contenedor puede ejecutar una aplicación mientras otro ejecuta un servicio como Redis, y ambos pueden comunicarse mediante una red Docker.
+
+Esto permite separar responsabilidades y administrar cada servicio de manera independiente.
+
+## Preguntas de reflexión
+
+1. **¿Por qué una aplicación web podría necesitar comunicarse con una base de datos?**
+
+   Porque una aplicación normalmente necesita almacenar y recuperar información.
+
+   Por ejemplo, puede necesitar guardar usuarios, configuraciones, productos, mensajes o cualquier otro dato que deba conservarse y consultarse posteriormente.
+
+2. **¿Por qué ambos contenedores deben estar en la misma red?**
+
+   Porque necesitan un medio común para comunicarse entre sí.
+
+   Al estar conectados a la misma red Docker, pueden intercambiar información y utilizar sus nombres para identificarse.
+
+3. **¿Qué ventaja tiene separar servicios en contenedores distintos?**
+
+   Permite que cada servicio tenga su propia configuración y pueda administrarse de forma independiente.
+
+   Por ejemplo, Redis puede reiniciarse o actualizarse sin tener que modificar directamente el contenedor donde se ejecuta otra aplicación.
+
+4. **¿Qué limitación tiene hacerlo manualmente con varios comandos docker run?**
+
+   A medida que aumenta la cantidad de servicios, ejecutar cada contenedor manualmente se vuelve más complicado.
+
+   Es necesario recordar nombres, redes y configuraciones para cada contenedor, lo que puede hacer más difícil administrar una aplicación con muchos servicios.
