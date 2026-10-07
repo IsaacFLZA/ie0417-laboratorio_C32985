@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    mensaje = os.environ.get("MENSAJE", "Hola desde Flask en Docker")
+    mensaje = os.environ.get("MENSAJE", "Messi es el mejor de la historia")
     return f"""
     <h1>{mensaje}</h1>
     <p>Esta aplicación se está ejecutando dentro de un contenedor.</p>

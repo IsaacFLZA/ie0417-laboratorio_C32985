@@ -292,3 +292,210 @@ Este archivo está en un volumen
    Los volúmenes pueden utilizarse cuando una aplicación necesita conservar información independientemente de los contenedores.
 
    Por ejemplo, pueden servir para almacenar datos de bases de datos, archivos generados por una aplicación, configuraciones persistentes o información que deba conservarse entre distintas ejecuciones de un servicio.
+
+
+   # Parte 11: bind mounts
+
+## Bind mounts
+
+## Paso: ejecutar la aplicación utilizando un bind mount
+
+**Qué se hizo:** Se ejecutó la aplicación Flask dentro de un contenedor llamado `app-bind`, montando la carpeta local `app/` del host dentro del directorio `/app` del contenedor.
+
+**Comando ejecutado:**
+
+```bash
+docker run --name app-bind -p 5000:5000 -v "$(pwd)":/app laboratorio-flask:1.0
+```
+
+**Explicación (para qué sirve el comando):** La opción `-v "$(pwd)":/app` crea un bind mount entre la carpeta actual del host y el directorio `/app` dentro del contenedor.
+
+En este caso, `$(pwd)` representa la ruta actual:
+
+```text
+/workspaces/ie0417-laboratorio_C32985/laboratorio-contenedores/app
+```
+
+y `/app` corresponde al directorio utilizado por la aplicación dentro del contenedor.
+
+Por lo tanto, el contenido de la carpeta local queda disponible directamente dentro del contenedor.
+
+**Resultado obtenido:**
+
+```text
+* Serving Flask app 'app'
+* Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+* Running on all addresses (0.0.0.0)
+* Running on http://127.0.0.1:5000
+* Running on http://172.17.0.2:5000
+Press CTRL+C to quit
+172.17.0.1 - - [07/Oct/2026 21:18:49] "GET / HTTP/1.1" 200 -
+172.17.0.1 - - [07/Oct/2026 21:18:49] "GET /favicon.ico HTTP/1.1" 404 -
+```
+
+**Reflexión:** La aplicación inició correctamente utilizando los archivos disponibles en la carpeta local montada mediante el bind mount. Esto permitió que el código almacenado en el host estuviera disponible dentro del contenedor sin necesidad de copiarlo nuevamente a una imagen.
+
+## Paso: modificar el código local
+
+**Qué se hizo:** Se modificó el archivo `app.py` directamente desde GitHub Codespaces, cambiando el mensaje mostrado en la página principal.
+
+El nuevo mensaje utilizado fue:
+
+```text
+Messi es el mejor de la historia
+```
+
+El cambio se realizó sobre el archivo local ubicado en la carpeta que estaba siendo montada dentro del contenedor.
+
+**Reflexión:** Debido al bind mount, el contenedor utiliza los archivos de la carpeta local en lugar de depender únicamente de la copia incluida originalmente en la imagen. Esto permite trabajar directamente sobre el código del host durante el desarrollo.
+
+## Paso: detener y eliminar el primer contenedor
+
+**Qué se hizo:** Después de modificar el archivo local, se detuvo y eliminó el primer contenedor.
+
+**Comandos ejecutados:**
+
+```bash
+docker stop app-bind
+docker rm app-bind
+```
+
+**Resultado obtenido:**
+
+```text
+app-bind
+app-bind
+```
+
+**Reflexión:** El contenedor se eliminó correctamente. El cambio realizado en `app.py` no se perdió porque el archivo pertenece a la carpeta del host y no al sistema de archivos interno del contenedor.
+
+## Paso: ejecutar nuevamente la aplicación con el bind mount
+
+**Qué se hizo:** Se creó un nuevo contenedor llamado `app-bind-2`, utilizando nuevamente la misma carpeta local como bind mount.
+
+**Comando ejecutado:**
+
+```bash
+docker run --name app-bind-2 -p 5000:5000 -v "$(pwd)":/app laboratorio-flask:1.0
+```
+
+**Explicación (para qué sirve el comando):** El nuevo contenedor utilizó la misma imagen `laboratorio-flask:1.0`, pero el directorio `/app` fue reemplazado por el contenido actual de la carpeta local mediante el bind mount.
+
+Por esta razón, el nuevo contenedor pudo utilizar directamente la versión modificada de `app.py` sin reconstruir la imagen.
+
+**Resultado obtenido:**
+
+```text
+* Serving Flask app 'app'
+* Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+* Running on all addresses (0.0.0.0)
+* Running on http://127.0.0.1:5000
+* Running on http://172.17.0.2:5000
+Press CTRL+C to quit
+172.17.0.1 - - [07/Oct/2026 21:21:13] "GET / HTTP/1.1" 200 -
+172.17.0.1 - - [07/Oct/2026 21:21:13] "GET /favicon.ico HTTP/1.1" 404 -
+```
+
+La página principal mostró correctamente el nuevo mensaje:
+
+```text
+Messi es el mejor de la historia
+```
+
+### Evidencia del cambio en el código
+
+![Aplicación ejecutándose con el código modificado](evidencias/parte11/CambioCodigo.png)
+
+**Reflexión:** El cambio realizado en el archivo `app.py` del host apareció en el nuevo contenedor sin necesidad de modificar el Dockerfile ni ejecutar nuevamente `docker build`.
+
+Esto demuestra que el bind mount permite utilizar directamente archivos del host dentro del contenedor, lo cual puede resultar útil durante el desarrollo de una aplicación.
+
+## Paso: detener y eliminar el segundo contenedor
+
+**Qué se hizo:** Después de verificar el cambio en la aplicación, se detuvo y eliminó el segundo contenedor.
+
+**Comandos ejecutados:**
+
+```bash
+docker stop app-bind-2
+docker rm app-bind-2
+```
+
+**Resultado obtenido:**
+
+```text
+app-bind-2
+app-bind-2
+```
+
+**Reflexión:** El segundo contenedor se eliminó correctamente. El archivo `app.py` modificado permaneció en la máquina host, ya que el bind mount utiliza directamente los archivos locales y estos no dependen del ciclo de vida del contenedor.
+
+## Diferencia entre datos-lab:/datos y "$(pwd)":/app
+
+En la Parte 10 se utilizó:
+
+```text
+datos-lab:/datos
+```
+
+En este caso, `datos-lab` corresponde a un volumen administrado directamente por Docker. Docker se encarga de decidir dónde se almacenan físicamente esos datos.
+
+En la Parte 11 se utilizó:
+
+```text
+"$(pwd)":/app
+```
+
+En este caso, `$(pwd)` corresponde a una carpeta real del host. Docker monta esa carpeta directamente dentro del contenedor en `/app`.
+
+La diferencia principal es que un volumen es administrado por Docker, mientras que un bind mount utiliza directamente una ruta existente en el sistema anfitrión.
+
+## Qué ocurrió al modificar el código local
+
+Después de modificar `app.py` en el host y ejecutar nuevamente el contenedor con el mismo bind mount, la aplicación mostró el nuevo mensaje:
+
+```text
+Messi es el mejor de la historia
+```
+
+No fue necesario reconstruir la imagen `laboratorio-flask:1.0`.
+
+Esto ocurrió porque el directorio `/app` del contenedor estaba utilizando directamente el contenido de la carpeta local mediante el bind mount.
+
+## Por qué esto puede ser útil durante el desarrollo
+
+Los bind mounts permiten modificar el código desde el editor del host y utilizar esos mismos archivos dentro del contenedor.
+
+Esto evita tener que reconstruir una imagen cada vez que se realiza un cambio en el código durante el desarrollo.
+
+De esta forma, el contenedor puede proporcionar el entorno de ejecución y las dependencias, mientras que el código puede seguir editándose directamente desde el sistema anfitrión.
+
+## Preguntas de reflexión
+
+1. **¿Qué diferencia hay entre un volumen y un bind mount?**
+
+   Un volumen es un espacio de almacenamiento administrado por Docker. El usuario le asigna un nombre, como `datos-lab`, y Docker administra su ubicación en el sistema.
+
+   Un bind mount conecta directamente una carpeta o archivo existente en el host con una ruta dentro del contenedor.
+
+   En este laboratorio, `datos-lab:/datos` utilizó un volumen administrado por Docker, mientras que `"$(pwd)":/app` utilizó directamente la carpeta local del proyecto.
+
+2. **¿Cuál parece más conveniente para desarrollo?**
+
+   Un bind mount resulta conveniente durante el desarrollo porque permite editar los archivos directamente desde el host y utilizar esos mismos archivos dentro del contenedor.
+
+   En este ejercicio, fue posible modificar `app.py` y observar el cambio sin reconstruir la imagen.
+
+3. **¿Cuál parece más conveniente para datos persistentes de una aplicación?**
+
+   Un volumen suele ser más conveniente para almacenar datos persistentes que no deberían depender directamente de una carpeta específica del host.
+
+   En la Parte 10 se comprobó que el volumen `datos-lab` conservó el archivo incluso después de eliminar los contenedores que lo utilizaron.
+
+4. **¿Qué riesgos podría tener montar carpetas del host dentro del contenedor?**
+
+   Un bind mount da al contenedor acceso directo a archivos del host dentro de la ruta montada.
+
+   Si el contenedor puede escribir en esa carpeta, también podría modificar o eliminar archivos del sistema anfitrión. Por esta razón, es importante montar únicamente las rutas necesarias y controlar qué acceso se proporciona al contenedor.
