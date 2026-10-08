@@ -41,7 +41,6 @@ Press CTRL+C to quit
 172.17.0.1 - - [07/Oct/2026 19:29:10] "GET /info HTTP/1.1" 200 -
 ```
 
-Debido a que el laboratorio se realizó en GitHub Codespaces, el acceso desde el navegador se hizo mediante la URL reenviada por Codespaces para el puerto `5000`, en lugar de utilizar directamente `http://localhost:5000`.
 
 La página principal se mostró correctamente:
 

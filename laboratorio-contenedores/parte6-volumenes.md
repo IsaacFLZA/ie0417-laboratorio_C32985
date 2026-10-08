@@ -404,9 +404,6 @@ La página principal mostró correctamente el nuevo mensaje:
 Messi es el mejor de la historia
 ```
 
-### Evidencia del cambio en el código
-
-![Aplicación ejecutándose con el código modificado](evidencias/parte11/CambioCodigo.png)
 
 **Reflexión:** El cambio realizado en el archivo `app.py` del host apareció en el nuevo contenedor sin necesidad de modificar el Dockerfile ni ejecutar nuevamente `docker build`.
 
