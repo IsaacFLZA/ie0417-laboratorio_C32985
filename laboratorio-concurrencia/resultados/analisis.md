@@ -167,3 +167,57 @@ Si el vector fuera muy pequeño, probablemente la versión secuencial resultarí
 ### Conclusión de la parte 4
 
 Se comprobó que la programación paralela puede mejorar el rendimiento al distribuir una tarea entre varios hilos, siempre que el trabajo pueda dividirse en operaciones independientes. En las pruebas realizadas, la versión paralela fue más rápida en dos de las tres ejecuciones registradas, aunque las diferencias de tiempo fueron relativamente pequeñas y variables. Estos resultados permiten concluir que el uso de múltiples hilos no garantiza automáticamente una ejecución más rápida, ya que el rendimiento también depende de los costos de administración de hilos, la cantidad de trabajo y los recursos disponibles en el sistema.
+
+
+
+---
+
+## Parte 5: Cantidad de hilos vs. rendimiento
+
+### Resultados obtenidos
+
+Se modificó el programa de la parte 4 para comparar el rendimiento de la suma paralela de un vector de 100 000 000 de elementos utilizando 1, 2, 4, 8 y 16 hilos. Las pruebas se realizaron en GitHub Codespaces, donde el comando `nproc` indicó que el entorno dispone de 2 procesadores lógicos.
+
+Se realizó una ejecución inicial y posteriormente tres ejecuciones adicionales para observar las variaciones en los tiempos de ejecución. En todas las pruebas se obtuvo correctamente el resultado esperado de 100 000 000.
+
+Los resultados de las tres ejecuciones adicionales fueron los siguientes:
+
+| Cantidad de hilos | Ejecución 1 | Ejecución 2 | Ejecución 3 | Promedio |
+|-------------------|-------------|-------------|-------------|----------|
+| 1 | 43 ms | 42 ms | 50 ms | 45,00 ms |
+| 2 | 43 ms | 39 ms | 38 ms | 40,00 ms |
+| 4 | 53 ms | 39 ms | 55 ms | 49,00 ms |
+| 8 | 43 ms | 43 ms | 39 ms | 41,67 ms |
+| 16 | 40 ms | 44 ms | 43 ms | 42,33 ms |
+
+Los resultados muestran que la configuración de 2 hilos presentó el mejor tiempo promedio, con 40 ms, mientras que la configuración de 4 hilos obtuvo el promedio más alto, con 49 ms. También se observaron variaciones entre las ejecuciones de una misma configuración, lo que indica que el rendimiento puede verse afectado por las condiciones del entorno.
+
+### Preguntas de análisis
+
+**1. ¿Cuál cantidad de hilos produjo el mejor tiempo?**
+
+El mejor tiempo individual fue de 38 ms, obtenido con 2 hilos durante la tercera ejecución. Además, esta configuración presentó el mejor promedio de las tres ejecuciones, con 40 ms. Esto resulta interesante porque el entorno de GitHub Codespaces dispone de 2 procesadores lógicos, aunque no es posible determinar únicamente con estas mediciones si esa correspondencia explica el resultado.
+
+**2. ¿El tiempo mejoró siempre al aumentar los hilos?**
+
+No. Los resultados demostraron que aumentar la cantidad de hilos no garantiza una reducción del tiempo de ejecución. Por ejemplo, la configuración de 2 hilos obtuvo un promedio de 40 ms, mientras que la de 4 hilos presentó un promedio de 49 ms. Aunque las configuraciones de 8 y 16 hilos obtuvieron tiempos competitivos, ninguna superó el promedio registrado con 2 hilos.
+
+**3. ¿Cuántos núcleos tiene la computadora donde se ejecutó el programa?**
+
+Las pruebas se realizaron en GitHub Codespaces, utilizando un entorno virtual de Linux. El comando `nproc` reportó 2 procesadores lógicos disponibles para ejecutar el programa. Este valor corresponde a los recursos disponibles en el entorno virtual y no necesariamente a la cantidad de núcleos físicos de la computadora utilizada para acceder a Codespaces.
+
+**4. ¿Qué ocurre cuando se usan más hilos que núcleos disponibles?**
+
+Cuando se utilizan más hilos que procesadores lógicos disponibles, no todos pueden ejecutar instrucciones simultáneamente. El sistema operativo debe distribuir el tiempo de procesamiento entre ellos, alternando su ejecución según la disponibilidad de recursos. Esto puede generar costos adicionales de administración y limitar los beneficios de la programación paralela.
+
+**5. ¿Qué relación tiene esto con el context switching?**
+
+El *context switching* consiste en cambiar la ejecución del procesador de un hilo o proceso a otro, conservando y restaurando la información necesaria para continuar su ejecución. Cuando existen más hilos ejecutables que procesadores lógicos disponibles, pueden producirse más cambios de contexto. Estos cambios tienen un costo computacional y pueden afectar el rendimiento, ya que el procesador debe dedicar recursos a administrar la ejecución en lugar de realizar únicamente el trabajo del programa.
+
+**6. ¿Por qué la versión con 16 hilos podría no ser la mejor?**
+
+La versión con 16 hilos podría no ser la mejor porque el entorno dispone de solamente 2 procesadores lógicos. Al utilizar una cantidad de hilos considerablemente mayor, aparecen costos adicionales asociados con su creación, planificación y administración. Además, la suma de un vector grande puede estar limitada por la velocidad de acceso a memoria, por lo que agregar hilos no necesariamente incrementa el rendimiento. En las pruebas realizadas, los 16 hilos obtuvieron un promedio de 42,33 ms, superior a los 40 ms registrados con 2 hilos.
+
+### Conclusión de la parte 5
+
+Se comprobó que aumentar la cantidad de hilos no garantiza una mejora continua del rendimiento. Aunque todas las configuraciones produjeron correctamente la suma de los 100 000 000 de elementos, los tiempos variaron dependiendo de la cantidad de hilos utilizada y de las condiciones de ejecución. La configuración de 2 hilos presentó el mejor promedio, lo que resulta consistente con los 2 procesadores lógicos disponibles en el entorno virtual, aunque no demuestra una relación causal por sí sola. Estos resultados muestran la importancia de considerar los recursos disponibles, los costos de administración de hilos y las características del trabajo antes de decidir cuántos hilos utilizar.
