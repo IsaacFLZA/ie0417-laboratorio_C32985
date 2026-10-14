@@ -121,3 +121,49 @@ La principal desventaja es el costo adicional de sincronización, debido a que c
 ### Conclusión de la parte 3
 
 Se comprobó que utilizar `std::mutex` y `std::lock_guard` permite corregir la condición de carrera observada en la parte anterior, garantizando que solamente un hilo a la vez modifique la variable compartida. Las cinco ejecuciones produjeron correctamente los 4 000 000 de incrementos esperados, a diferencia de los resultados incorrectos obtenidos sin sincronización. Sin embargo, aunque estos mecanismos garantizan el acceso seguro a los datos compartidos, también introducen costos adicionales de ejecución que pueden afectar el rendimiento del programa.
+
+
+
+---
+
+## Parte 4: Mini benchmark secuencial vs. paralelo
+
+### Resultados obtenidos
+
+Se realizó una comparación entre la ejecución secuencial y la ejecución paralela de un programa encargado de sumar los elementos de un vector de 100 000 000 de números enteros. La versión secuencial realizó la suma utilizando un solo hilo, mientras que la versión paralela dividió el trabajo entre cuatro hilos. Ambas implementaciones produjeron correctamente el resultado esperado de 100 000 000.
+
+El programa se ejecutó tres veces para comparar los tiempos de ejecución de ambas implementaciones. Los resultados obtenidos fueron los siguientes:
+
+| Ejecución | Tiempo secuencial | Tiempo paralelo | Más rápido |
+|-----------|-------------------|-----------------|------------|
+| 1 | 42 ms | 44 ms | Secuencial |
+| 2 | 40 ms | 39 ms | Paralelo |
+| 3 | 52 ms | 45 ms | Paralelo |
+
+Adicionalmente, se realizó una ejecución inicial en la que se obtuvieron 59 ms para la versión secuencial y 42 ms para la paralela. En general, se observó que la implementación paralela presentó mejores tiempos en dos de las tres ejecuciones registradas, aunque la diferencia de rendimiento no fue constante.
+
+### Preguntas de análisis
+
+**1. ¿El resultado secuencial y el paralelo son iguales?**
+
+Sí. En todas las ejecuciones, tanto la versión secuencial como la paralela produjeron el resultado esperado de 100 000 000. Esto demuestra que ambas implementaciones realizaron correctamente la suma de los elementos del vector, a pesar de utilizar diferentes estrategias de ejecución.
+
+**2. ¿La versión paralela siempre fue más rápida?**
+
+No. Aunque la versión paralela fue más rápida en dos de las tres ejecuciones registradas, en la primera ejecución el programa secuencial tardó 42 ms, mientras que el paralelo necesitó 44 ms. Esto demuestra que utilizar múltiples hilos no garantiza una mejora de rendimiento en todas las ejecuciones, debido a los costos adicionales asociados con la concurrencia y las condiciones de ejecución del sistema.
+
+**3. ¿Por qué dividir el vector en bloques permite paralelizar el trabajo?**
+
+Dividir el vector en bloques permite que diferentes hilos procesen conjuntos independientes de elementos simultáneamente. Cada hilo calcula una suma parcial de su bloque y almacena el resultado en una posición independiente. Una vez que todos los hilos terminan, las sumas parciales se combinan para obtener el resultado total. Como los hilos no necesitan modificar una misma variable compartida durante el cálculo, se evita la necesidad de utilizar un mutex para proteger las sumas parciales.
+
+**4. ¿Qué costos adicionales tiene la versión paralela?**
+
+La versión paralela introduce costos asociados con la creación y administración de hilos, la distribución del trabajo, la sincronización mediante `join()` y la combinación de los resultados parciales. Además, cuando existen más hilos que procesadores lógicos disponibles, el sistema operativo debe distribuir su ejecución entre los recursos existentes, lo que puede generar cambios de contexto y afectar el rendimiento. Estos costos pueden reducir o incluso eliminar las ventajas de la ejecución paralela.
+
+**5. ¿Qué podría pasar si el vector fuera muy pequeño?**
+
+Si el vector fuera muy pequeño, probablemente la versión secuencial resultaría más rápida, debido a que el tiempo necesario para realizar la suma sería reducido. En ese caso, los costos de crear y administrar varios hilos podrían ser mayores que el beneficio obtenido al dividir el trabajo. Por esta razón, la programación paralela suele resultar más conveniente cuando la cantidad de trabajo es suficientemente grande para compensar los costos adicionales.
+
+### Conclusión de la parte 4
+
+Se comprobó que la programación paralela puede mejorar el rendimiento al distribuir una tarea entre varios hilos, siempre que el trabajo pueda dividirse en operaciones independientes. En las pruebas realizadas, la versión paralela fue más rápida en dos de las tres ejecuciones registradas, aunque las diferencias de tiempo fueron relativamente pequeñas y variables. Estos resultados permiten concluir que el uso de múltiples hilos no garantiza automáticamente una ejecución más rápida, ya que el rendimiento también depende de los costos de administración de hilos, la cantidad de trabajo y los recursos disponibles en el sistema.
