@@ -1,1 +1,16 @@
 salidas.txt
+# Ejecutables generados por el laboratorio
+/parte1
+/parte2
+/parte3
+/parte4
+/parte5
+/parte6
+/parte6_corregido
+
+# Archivos de compilación
+*.o
+*.out
+
+# Archivos temporales
+*.log

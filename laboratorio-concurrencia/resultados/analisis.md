@@ -145,3 +145,97 @@ ejecución alcanzó ese valor.
 Esto demuestra la importancia de utilizar mecanismos
 de sincronización cuando varios hilos trabajan sobre
 un mismo recurso compartido.
+
+---
+
+## Parte 3: Corrección usando mutex
+
+### Resultados obtenidos
+
+Se ejecutó el programa cinco veces utilizando cuatro hilos.
+Cada hilo realizó 1 000 000 de incrementos sobre una
+variable global compartida.
+
+A diferencia de la parte 2, se utilizó std::mutex
+junto con std::lock_guard para proteger el contador.
+
+| Ejecución | Valor esperado | Valor obtenido |
+|-----------|----------------|----------------|
+| 1 | 4000000 | 4000000 |
+| 2 | 4000000 | 4000000 |
+| 3 | 4000000 | 4000000 |
+| 4 | 4000000 | 4000000 |
+| 5 | 4000000 | 4000000 |
+
+### Comparación con la parte 2
+
+En la parte 2, ninguna de las cinco ejecuciones
+alcanzó el valor esperado de 4 000 000.
+
+En cambio, al utilizar un mutex, las cinco ejecuciones
+de la parte 3 produjeron el resultado correcto.
+
+Esto demuestra que la sincronización permite evitar
+los accesos simultáneos no seguros a una variable
+compartida.
+
+### Preguntas de análisis
+
+**1. ¿Qué cambió con respecto al programa anterior?**
+
+Se agregó un objeto std::mutex y se utilizó
+std::lock_guard para proteger la operación contador++.
+
+Esto permite que solamente un hilo a la vez
+modifique la variable compartida.
+
+**2. ¿Qué hace std::mutex?**
+
+std::mutex es un mecanismo de sincronización
+que permite garantizar la exclusión mutua.
+
+Cuando un hilo adquiere el mutex, los demás hilos
+que intenten adquirirlo deben esperar hasta que
+el recurso sea liberado.
+
+**3. ¿Qué hace std::lock_guard?**
+
+std::lock_guard es un mecanismo que adquiere
+automáticamente un mutex al crearse y lo libera
+cuando sale de su ámbito.
+
+Esto facilita la administración del mutex y evita
+tener que llamar manualmente a lock() y unlock().
+
+**4. ¿Por qué ahora el resultado sí debería ser correcto?**
+
+Porque cada incremento se realiza dentro de una
+sección crítica protegida por el mutex.
+
+Esto evita que varios hilos modifiquen simultáneamente
+el contador y permite conservar todos los incrementos.
+
+**5. ¿Qué desventaja podría tener proteger cada
+incremento individual con un mutex?**
+
+La principal desventaja es el costo de sincronización.
+
+Cada incremento requiere adquirir y liberar el mutex,
+lo que introduce operaciones adicionales y puede
+provocar que los hilos tengan que esperar.
+
+Esto puede reducir el rendimiento y limitar los
+beneficios de utilizar múltiples hilos.
+
+### Conclusión de la parte 3
+
+Se comprobó que utilizar std::mutex y std::lock_guard
+permite corregir la condición de carrera observada
+en la parte anterior.
+
+Las cinco ejecuciones produjeron correctamente
+4 000 000 de incrementos.
+
+Sin embargo, aunque la sincronización garantiza
+el acceso seguro a los datos compartidos, también
+introduce costos adicionales de ejecución.
