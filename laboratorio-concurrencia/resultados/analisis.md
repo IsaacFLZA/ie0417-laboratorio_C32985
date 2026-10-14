@@ -289,3 +289,59 @@ Después de observar el interbloqueo, se implementó una segunda versión del pr
 ### Conclusión de la parte 6
 
 Se comprobó que un deadlock puede ocurrir cuando varios hilos adquieren recursos compartidos en órdenes incompatibles y quedan esperando indefinidamente por recursos utilizados por otros hilos. En la primera versión del programa, ambos hilos quedaron bloqueados y fue necesario finalizar la ejecución mediante `timeout`. Sin embargo, al implementar `std::scoped_lock`, los dos hilos consiguieron adquirir los recursos y finalizar normalmente. Esta experiencia demuestra la importancia de diseñar correctamente los mecanismos de sincronización y establecer estrategias seguras para adquirir múltiples recursos compartidos.
+
+
+
+---
+
+## Parte 7: Reflexión final
+
+### Preguntas de reflexión
+
+**1. ¿Cuál fue la diferencia más clara que observó entre ejecución secuencial y ejecución con hilos?**
+
+La diferencia más clara fue que la ejecución secuencial realiza las operaciones siguiendo un orden determinado dentro de un mismo hilo, mientras que la ejecución concurrente permite que varios hilos avancen de manera intercalada y, cuando existen recursos suficientes, ejecuten trabajo simultáneamente. En la parte 1 se observó que los mensajes de los hilos aparecían en diferentes órdenes, mientras que en la parte 4 se comprobó que dividir una tarea entre varios hilos puede reducir su tiempo de ejecución en determinadas condiciones.
+
+**2. ¿Qué es una condición de carrera?**
+
+Una condición de carrera ocurre cuando el resultado de un programa depende del orden o momento en que se ejecutan operaciones concurrentes. En particular, una condición de carrera de datos se produce cuando varios hilos acceden a una misma ubicación de memoria sin la sincronización adecuada y al menos uno realiza una escritura. Durante la parte 2 se observó este problema al permitir que cuatro hilos incrementaran simultáneamente un contador compartido, obteniendo valores incorrectos.
+
+**3. ¿Por qué contador++ puede fallar cuando muchos hilos lo ejecutan al mismo tiempo?**
+
+La operación `contador++` puede fallar porque no garantiza un incremento atómico. Conceptualmente, esta operación requiere leer el valor actual, incrementarlo y almacenar el resultado. Cuando varios hilos realizan estas acciones simultáneamente sin sincronización, pueden leer el mismo valor y sobrescribir actualizaciones realizadas por otros hilos. Esto provoca una condición de carrera de datos y genera comportamiento indefinido, como se observó en la parte 2 del laboratorio.
+
+**4. ¿Qué problema resuelve un mutex?**
+
+Un mutex permite evitar accesos simultáneos no seguros a recursos compartidos mediante un mecanismo de exclusión mutua. Cuando un hilo adquiere el mutex, los demás hilos que intenten adquirirlo deben esperar hasta que sea liberado. En la parte 3 se comprobó su utilidad al proteger un contador compartido, permitiendo obtener correctamente los 4 000 000 de incrementos esperados en todas las ejecuciones.
+
+**5. ¿Qué ventaja tiene std::lock_guard sobre llamar manualmente a lock() y unlock()?**
+
+La principal ventaja de `std::lock_guard` es que administra automáticamente el bloqueo y la liberación de un mutex mediante el principio RAII. El mutex se adquiere al crear el objeto y se libera cuando este sale de su ámbito, incluso si ocurre una excepción. Esto reduce el riesgo de olvidar liberar un recurso y permite escribir código más seguro, sencillo y fácil de mantener.
+
+**6. ¿Por qué más hilos no siempre significan mejor rendimiento?**
+
+Utilizar más hilos no siempre mejora el rendimiento porque su creación, administración y sincronización introducen costos adicionales. Además, la cantidad de procesadores disponibles limita el paralelismo real que puede aprovecharse. En la parte 5 se observó que la configuración de 2 hilos obtuvo el mejor tiempo promedio, mientras que utilizar 4, 8 o 16 hilos no produjo una mejora constante. Esto demuestra que la cantidad de hilos debe seleccionarse considerando los recursos disponibles y las características de la tarea.
+
+**7. ¿Qué es un deadlock?**
+
+Un deadlock o interbloqueo es una situación en la que dos o más hilos quedan bloqueados indefinidamente porque cada uno espera un recurso que está siendo utilizado por otro. En la parte 6 se observó este comportamiento cuando el hilo A adquirió el recurso 1 y esperó el recurso 2, mientras que el hilo B adquirió el recurso 2 y esperó el recurso 1. Como ninguno podía continuar, el programa quedó bloqueado hasta que fue terminado manualmente mediante un límite de tiempo.
+
+**8. ¿Qué buenas prácticas aplicaría al programar con hilos?**
+
+Al programar con hilos es importante minimizar el uso innecesario de recursos compartidos, proteger las secciones críticas mediante mecanismos de sincronización adecuados y evitar mantener mutex bloqueados durante más tiempo del necesario. También es recomendable utilizar herramientas como `std::lock_guard` y `std::scoped_lock` para administrar los bloqueos de manera segura, garantizar que los hilos finalicen correctamente mediante `join()` cuando corresponda y establecer un orden consistente para adquirir múltiples recursos. Además, es importante evaluar el rendimiento mediante mediciones reales, ya que agregar hilos no siempre mejora la ejecución.
+
+**9. ¿En qué tipo de programas reales podría ser útil la programación concurrente?**
+
+La programación concurrente resulta útil en aplicaciones que necesitan atender varias tareas durante un mismo período, especialmente cuando algunas operaciones requieren esperar eventos externos. Por ejemplo, puede utilizarse en servidores web que atienden múltiples solicitudes, aplicaciones con interfaces gráficas que deben mantenerse responsivas, sistemas de comunicación, programas que realizan operaciones de entrada y salida y aplicaciones que gestionan múltiples conexiones de red.
+
+**10. ¿En qué tipo de programas reales podría ser útil la programación paralela?**
+
+La programación paralela resulta especialmente útil en aplicaciones que realizan grandes cantidades de operaciones computacionales independientes y pueden distribuir el trabajo entre varios procesadores. Algunos ejemplos incluyen simulaciones científicas, procesamiento de imágenes y video, análisis de grandes conjuntos de datos, cálculos matemáticos intensivos, entrenamiento de modelos de inteligencia artificial y simulaciones de ingeniería. En estos casos, dividir adecuadamente el trabajo puede reducir el tiempo necesario para completar una tarea.
+
+### Conclusión general del laboratorio
+
+A lo largo del laboratorio se estudiaron conceptos fundamentales de programación concurrente y paralela mediante diferentes programas desarrollados en C++. Inicialmente, se observó cómo la ejecución de múltiples hilos puede producir resultados en órdenes distintos. Posteriormente, se identificaron los problemas ocasionados por el acceso simultáneo a variables compartidas y se comprobó cómo mecanismos de sincronización como `std::mutex` y `std::lock_guard` permiten evitar condiciones de carrera de datos.
+
+También se realizaron mediciones de rendimiento para comparar implementaciones secuenciales y paralelas, observando que utilizar más hilos no garantiza necesariamente una ejecución más rápida. Finalmente, se reprodujo un caso de deadlock y se implementó una solución mediante `std::scoped_lock`, demostrando la importancia de adquirir correctamente los recursos compartidos.
+
+En general, el laboratorio permitió comprender que la programación concurrente y paralela ofrece ventajas importantes para el desarrollo de software, pero también introduce desafíos relacionados con la sincronización, la administración de recursos y el rendimiento. 
