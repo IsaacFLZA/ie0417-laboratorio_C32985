@@ -8,8 +8,8 @@
 
 ## Estudiante
 
-- **Nombre:** [Isaac Flores Zamora]
-- **Carné:** [C32985]
+- **Nombre:** Isaac Flores Zamora
+- **Carné:** C32985
 
 
 ## Descripción
