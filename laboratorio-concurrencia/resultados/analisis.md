@@ -221,3 +221,71 @@ La versión con 16 hilos podría no ser la mejor porque el entorno dispone de so
 ### Conclusión de la parte 5
 
 Se comprobó que aumentar la cantidad de hilos no garantiza una mejora continua del rendimiento. Aunque todas las configuraciones produjeron correctamente la suma de los 100 000 000 de elementos, los tiempos variaron dependiendo de la cantidad de hilos utilizada y de las condiciones de ejecución. La configuración de 2 hilos presentó el mejor promedio, lo que resulta consistente con los 2 procesadores lógicos disponibles en el entorno virtual, aunque no demuestra una relación causal por sí sola. Estos resultados muestran la importancia de considerar los recursos disponibles, los costos de administración de hilos y las características del trabajo antes de decidir cuántos hilos utilizar.
+
+
+
+---
+
+## Parte 6: Ejemplo simple de deadlock
+
+### Resultados obtenidos
+
+Se ejecutó un programa que utiliza dos hilos y dos recursos compartidos protegidos mediante objetos `std::mutex`. El hilo A intenta adquirir primero el recurso 1 y después el recurso 2, mientras que el hilo B realiza el procedimiento en orden inverso, adquiriendo primero el recurso 2 y posteriormente el recurso 1.
+
+Durante la ejecución, ambos hilos lograron adquirir su primer recurso, pero quedaron bloqueados al intentar obtener el segundo. El programa no finalizó normalmente, por lo que se utilizó el comando `timeout 5s ./parte6` para limitar su ejecución a cinco segundos. Posteriormente, el comando `echo $?` devolvió el código 124, confirmando que el programa fue terminado al alcanzar el tiempo límite establecido.
+
+La salida obtenida fue la siguiente:
+
+```text
+Hilo A intentando tomar recurso 1...
+Hilo B intentando tomar recurso 2...
+Hilo B intentando tomar recurso 1...
+Hilo A intentando tomar recurso 2...
+```
+
+Posteriormente, se ejecutó una versión corregida utilizando `std::scoped_lock` para adquirir ambos mutex de manera coordinada. En esta ocasión, el programa terminó normalmente y produjo la siguiente salida:
+
+```text
+Hilo A obtuvo ambos recursos de forma segura.
+Hilo B obtuvo ambos recursos de forma segura.
+```
+
+Estos resultados permitieron observar el problema del interbloqueo y comprobar cómo puede evitarse mediante mecanismos adecuados de sincronización.
+
+### Preguntas de análisis
+
+**1. ¿El programa termina normalmente?**
+
+No. En la versión original, el programa quedó bloqueado porque ambos hilos intentaron adquirir recursos que estaban siendo utilizados por el otro. Fue necesario finalizarlo mediante el comando `timeout`, que devolvió el código de salida 124 después de cinco segundos. Esto confirmó que el programa no logró completar su ejecución debido al interbloqueo.
+
+**2. ¿Qué recurso tomó primero el hilo A?**
+
+El hilo A adquirió primero el recurso 1 mediante la operación `recurso1.lock()`. Después de esperar 100 milisegundos, intentó adquirir el recurso 2, pero no pudo continuar porque este se encontraba ocupado por el hilo B.
+
+**3. ¿Qué recurso tomó primero el hilo B?**
+
+El hilo B adquirió primero el recurso 2 mediante la operación `recurso2.lock()`. Posteriormente, intentó adquirir el recurso 1, pero este ya estaba siendo utilizado por el hilo A, por lo que también quedó bloqueado.
+
+**4. ¿Por qué ninguno de los dos hilos puede continuar?**
+
+Ninguno puede continuar porque ambos mantienen un recurso bloqueado mientras esperan adquirir el recurso que posee el otro. El hilo A necesita el recurso 2 para continuar, pero este se encuentra bloqueado por el hilo B. Al mismo tiempo, el hilo B necesita el recurso 1, que está ocupado por el hilo A. Como ninguno libera su recurso antes de obtener el segundo, se produce un interbloqueo.
+
+**5. ¿Qué significa espera circular?**
+
+La espera circular ocurre cuando existe una cadena de hilos o procesos en la que cada uno espera un recurso que está siendo utilizado por otro integrante de la misma cadena. En este ejemplo, el hilo A espera un recurso que posee el hilo B, mientras que el hilo B espera uno que posee el hilo A. Esta dependencia circular impide que ambos continúen su ejecución.
+
+**6. ¿Cómo se podría evitar este problema?**
+
+Una forma de evitar el problema consiste en establecer un orden fijo para adquirir los recursos, de manera que todos los hilos intenten obtenerlos siguiendo la misma secuencia. Otra alternativa es utilizar `std::scoped_lock`, que permite adquirir múltiples mutex utilizando un mecanismo diseñado para evitar interbloqueos. De esta manera, se elimina el problema de que los hilos adquieran los recursos en órdenes incompatibles.
+
+### Corrección utilizando std::scoped_lock
+
+Después de observar el interbloqueo, se implementó una segunda versión del programa utilizando `std::scoped_lock`. En esta implementación, cada hilo solicita ambos mutex mediante una única operación de sincronización, evitando la situación de espera circular presentada en la versión original.
+
+**¿Por qué std::scoped_lock ayuda a evitar este deadlock?**
+
+`std::scoped_lock` permite adquirir varios mutex mediante un mecanismo de bloqueo diseñado para evitar interbloqueos entre ellos. A diferencia de adquirir manualmente cada mutex en un orden diferente, este mecanismo coordina su adquisición y garantiza que los recursos sean liberados automáticamente cuando el objeto sale de su ámbito. En el programa corregido, esto permitió que ambos hilos adquirieran los recursos necesarios y completaran su ejecución sin quedar bloqueados.
+
+### Conclusión de la parte 6
+
+Se comprobó que un deadlock puede ocurrir cuando varios hilos adquieren recursos compartidos en órdenes incompatibles y quedan esperando indefinidamente por recursos utilizados por otros hilos. En la primera versión del programa, ambos hilos quedaron bloqueados y fue necesario finalizar la ejecución mediante `timeout`. Sin embargo, al implementar `std::scoped_lock`, los dos hilos consiguieron adquirir los recursos y finalizar normalmente. Esta experiencia demuestra la importancia de diseñar correctamente los mecanismos de sincronización y establecer estrategias seguras para adquirir múltiples recursos compartidos.
