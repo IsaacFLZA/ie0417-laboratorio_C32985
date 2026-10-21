@@ -1,0 +1,70 @@
+==================
+WARNING: ThreadSanitizer: data race (pid=14130)
+  Read of size 4 at 0x59392d981154 by thread T2:
+    #0 incrementar() codigo/08_race_condition.cpp:8 (race_condition_tsan+0x13b9) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+    #1 void std::__invoke_impl<void, void (*)()>(std::__invoke_other, void (*&&)()) /usr/include/c++/13/bits/invoke.h:61 (race_condition_tsan+0x21c8) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+    #2 std::__invoke_result<void (*)()>::type std::__invoke<void (*)()>(void (*&&)()) /usr/include/c++/13/bits/invoke.h:96 (race_condition_tsan+0x211d) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+    #3 void std::thread::_Invoker<std::tuple<void (*)()> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/13/bits/std_thread.h:292 (race_condition_tsan+0x2072) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+    #4 std::thread::_Invoker<std::tuple<void (*)()> >::operator()() /usr/include/c++/13/bits/std_thread.h:299 (race_condition_tsan+0x2014) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+    #5 std::thread::_State_impl<std::thread::_Invoker<std::tuple<void (*)()> > >::_M_run() /usr/include/c++/13/bits/std_thread.h:244 (race_condition_tsan+0x1fc6) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+    #6 <null> <null> (libstdc++.so.6+0xecdb3) (BuildId: 753c6c8608b61d4e67be8f0c890e03e0aa046b8b)
+
+  Previous write of size 4 at 0x59392d981154 by thread T1:
+    #0 incrementar() codigo/08_race_condition.cpp:8 (race_condition_tsan+0x13d1) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+    #1 void std::__invoke_impl<void, void (*)()>(std::__invoke_other, void (*&&)()) /usr/include/c++/13/bits/invoke.h:61 (race_condition_tsan+0x21c8) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+    #2 std::__invoke_result<void (*)()>::type std::__invoke<void (*)()>(void (*&&)()) /usr/include/c++/13/bits/invoke.h:96 (race_condition_tsan+0x211d) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+    #3 void std::thread::_Invoker<std::tuple<void (*)()> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/13/bits/std_thread.h:292 (race_condition_tsan+0x2072) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+    #4 std::thread::_Invoker<std::tuple<void (*)()> >::operator()() /usr/include/c++/13/bits/std_thread.h:299 (race_condition_tsan+0x2014) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+    #5 std::thread::_State_impl<std::thread::_Invoker<std::tuple<void (*)()> > >::_M_run() /usr/include/c++/13/bits/std_thread.h:244 (race_condition_tsan+0x1fc6) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+    #6 <null> <null> (libstdc++.so.6+0xecdb3) (BuildId: 753c6c8608b61d4e67be8f0c890e03e0aa046b8b)
+
+  Location is global 'contador' of size 4 at 0x59392d981154 (race_condition_tsan+0x5154)
+
+  Thread T2 (tid=14133, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1022 (libtsan.so.2+0x5ac1a) (BuildId: 2a13a7710e361d06f7babbea53065ca2be93f738)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xeceb0) (BuildId: 753c6c8608b61d4e67be8f0c890e03e0aa046b8b)
+    #2 main codigo/08_race_condition.cpp:14 (race_condition_tsan+0x1444) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+
+  Thread T1 (tid=14132, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1022 (libtsan.so.2+0x5ac1a) (BuildId: 2a13a7710e361d06f7babbea53065ca2be93f738)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xeceb0) (BuildId: 753c6c8608b61d4e67be8f0c890e03e0aa046b8b)
+    #2 main codigo/08_race_condition.cpp:13 (race_condition_tsan+0x142e) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+
+SUMMARY: ThreadSanitizer: data race codigo/08_race_condition.cpp:8 in incrementar()
+==================
+==================
+WARNING: ThreadSanitizer: data race (pid=14130)
+  Write of size 4 at 0x59392d981154 by thread T2:
+    #0 incrementar() codigo/08_race_condition.cpp:8 (race_condition_tsan+0x13d1) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+    #1 void std::__invoke_impl<void, void (*)()>(std::__invoke_other, void (*&&)()) /usr/include/c++/13/bits/invoke.h:61 (race_condition_tsan+0x21c8) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+    #2 std::__invoke_result<void (*)()>::type std::__invoke<void (*)()>(void (*&&)()) /usr/include/c++/13/bits/invoke.h:96 (race_condition_tsan+0x211d) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+    #3 void std::thread::_Invoker<std::tuple<void (*)()> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/13/bits/std_thread.h:292 (race_condition_tsan+0x2072) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+    #4 std::thread::_Invoker<std::tuple<void (*)()> >::operator()() /usr/include/c++/13/bits/std_thread.h:299 (race_condition_tsan+0x2014) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+    #5 std::thread::_State_impl<std::thread::_Invoker<std::tuple<void (*)()> > >::_M_run() /usr/include/c++/13/bits/std_thread.h:244 (race_condition_tsan+0x1fc6) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+    #6 <null> <null> (libstdc++.so.6+0xecdb3) (BuildId: 753c6c8608b61d4e67be8f0c890e03e0aa046b8b)
+
+  Previous write of size 4 at 0x59392d981154 by thread T1:
+    #0 incrementar() codigo/08_race_condition.cpp:8 (race_condition_tsan+0x13d1) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+    #1 void std::__invoke_impl<void, void (*)()>(std::__invoke_other, void (*&&)()) /usr/include/c++/13/bits/invoke.h:61 (race_condition_tsan+0x21c8) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+    #2 std::__invoke_result<void (*)()>::type std::__invoke<void (*)()>(void (*&&)()) /usr/include/c++/13/bits/invoke.h:96 (race_condition_tsan+0x211d) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+    #3 void std::thread::_Invoker<std::tuple<void (*)()> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/13/bits/std_thread.h:292 (race_condition_tsan+0x2072) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+    #4 std::thread::_Invoker<std::tuple<void (*)()> >::operator()() /usr/include/c++/13/bits/std_thread.h:299 (race_condition_tsan+0x2014) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+    #5 std::thread::_State_impl<std::thread::_Invoker<std::tuple<void (*)()> > >::_M_run() /usr/include/c++/13/bits/std_thread.h:244 (race_condition_tsan+0x1fc6) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+    #6 <null> <null> (libstdc++.so.6+0xecdb3) (BuildId: 753c6c8608b61d4e67be8f0c890e03e0aa046b8b)
+
+  Location is global 'contador' of size 4 at 0x59392d981154 (race_condition_tsan+0x5154)
+
+  Thread T2 (tid=14133, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1022 (libtsan.so.2+0x5ac1a) (BuildId: 2a13a7710e361d06f7babbea53065ca2be93f738)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xeceb0) (BuildId: 753c6c8608b61d4e67be8f0c890e03e0aa046b8b)
+    #2 main codigo/08_race_condition.cpp:14 (race_condition_tsan+0x1444) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+
+  Thread T1 (tid=14132, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1022 (libtsan.so.2+0x5ac1a) (BuildId: 2a13a7710e361d06f7babbea53065ca2be93f738)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xeceb0) (BuildId: 753c6c8608b61d4e67be8f0c890e03e0aa046b8b)
+    #2 main codigo/08_race_condition.cpp:13 (race_condition_tsan+0x142e) (BuildId: 34d44581778f79bd097627c8f9ec74cc053acbf5)
+
+SUMMARY: ThreadSanitizer: data race codigo/08_race_condition.cpp:8 in incrementar()
+==================
+Contador final: 200000
+ThreadSanitizer: reported 2 warnings

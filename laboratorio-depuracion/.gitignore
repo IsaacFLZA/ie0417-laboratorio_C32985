@@ -1,0 +1,16 @@
+
+# Ejecutables generados durante el laboratorio
+/error_logico
+/error_sintaxis
+/gdb_basico
+/gdb_funciones
+/invalid_access
+/memory_leak
+/race_condition
+/race_condition_corregido
+/race_condition_corregido_tsan
+/race_condition_tsan
+/reto
+/reto_asan
+/use_after_free
+/use_after_free_asan

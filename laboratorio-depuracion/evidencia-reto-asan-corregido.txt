@@ -1,0 +1,2 @@
+Mayor: -5
+Promedio: -16
