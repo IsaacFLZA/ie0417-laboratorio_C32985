@@ -68,7 +68,7 @@ El laboratorio se divide en nueve partes.
 | 6 | Detección de errores con AddressSanitizer | [Parte 6](parte6-asan.md) |
 | 7 | Condiciones de carrera y sincronización | [Parte 7](parte7-hilos.md) |
 | 8 | Mini reto de depuración | [Parte 8](parte8-reto-y-reflexion.md) |
-| 9 | Reflexión final | [Parte 9](parte8-reto-y-reflexion.md#parte-9-reflexión-final-del-laboratorio) |
+| 9 | Reflexión final | [Parte 9](parte8-reto-y-reflexion.md#reflexión-final) |
 
 **Nota:** Las partes 8 y 9 se encuentran documentadas en el mismo archivo Markdown.
 
@@ -250,7 +250,7 @@ Estas preguntas abarcan:
 - Selección de herramientas según el error.
 - Aplicación de los conocimientos en futuros proyectos.
 
-**Documentación:** [Parte 9: Reflexión final](parte8-reto-y-reflexion.md#parte-9-reflexión-final-del-laboratorio)
+**Documentación:** [Parte 9: Reflexión final](parte8-reto-y-reflexion.md#reflexión-final)
 
 ---
 

@@ -1,6 +1,6 @@
 # Partes 8 y 9: Mini reto de depuración y reflexión final
 
-## Parte 8: Mini reto de depuración
+## Mini reto de depuración
 
 ### 1. Objetivo
 
@@ -965,7 +965,7 @@ Esta actividad permitió integrar los conocimientos adquiridos durante el labora
 
 ---
 
-# Parte 9: Reflexión final del laboratorio
+## Reflexión final
 
 ## 21. Objetivo
 
