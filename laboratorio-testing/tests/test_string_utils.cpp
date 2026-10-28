@@ -7,3 +7,7 @@ TEST(StringUtilsTest, DetectPalindromeWithSpaces) { EXPECT_TRUE(is_palindrome("a
 TEST(StringUtilsTest, DetectNonPalindrome) { EXPECT_FALSE(is_palindrome("software")); }
 TEST(StringUtilsTest, CountVowels) { EXPECT_EQ(count_vowels("murcielago"), 5); }
 TEST(StringUtilsTest, CountVowelsInTextWithoutVowels) { EXPECT_EQ(count_vowels("xyz"), 0); }
+
+TEST(StringUtilsTest, EmptyStringToUppercase) { EXPECT_EQ(to_uppercase(""), ""); }
+TEST(StringUtilsTest, EmptyStringIsPalindrome) { EXPECT_TRUE(is_palindrome("")); }
+TEST(StringUtilsTest, SingleLetterIsPalindrome) { EXPECT_TRUE(is_palindrome("a")); }
