@@ -1,0 +1,27 @@
+name: C++ testing
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'laboratorio-testing/**'
+      - '.github/workflows/testing.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laboratorio-testing/**'
+      - '.github/workflows/testing.yml'
+  workflow_dispatch:
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y build-essential cmake
+      - name: Configure CMake
+        run: cmake -S laboratorio-testing -B laboratorio-testing/build
+      - name: Build
+        run: cmake --build laboratorio-testing/build --parallel 2
+      - name: Run tests
+        run: ctest --test-dir laboratorio-testing/build --output-on-failure
