@@ -9,3 +9,15 @@ TEST(CalculatorTest, DivideNumbers) { EXPECT_EQ(divide(10, 2), 5); }
 TEST(CalculatorTest, DivideByZeroThrowsException) { EXPECT_THROW(divide(10, 0), std::invalid_argument); }
 TEST(CalculatorTest, DetectEvenNumber) { EXPECT_TRUE(is_even(8)); }
 TEST(CalculatorTest, DetectOddNumber) { EXPECT_FALSE(is_even(7)); }
+
+TEST(CalculatorTest, MultipleExpectChecks) {
+    EXPECT_EQ(add(1, 1), 2);
+    EXPECT_EQ(add(2, 2), 4);
+    EXPECT_EQ(add(3, 3), 6);
+}
+
+TEST(CalculatorTest, AssertBeforeDivision) {
+    int divisor = 2;
+    ASSERT_NE(divisor, 0);
+    EXPECT_EQ(divide(10, divisor), 5);
+}
