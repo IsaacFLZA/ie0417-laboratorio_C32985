@@ -21,3 +21,7 @@ TEST(CalculatorTest, AssertBeforeDivision) {
     ASSERT_NE(divisor, 0);
     EXPECT_EQ(divide(10, divisor), 5);
 }
+
+TEST(CalculatorTest, DivideNegativeNumbers) { EXPECT_EQ(divide(-10, -2), 5); }
+TEST(CalculatorTest, DividePositiveByNegative) { EXPECT_EQ(divide(10, -2), -5); }
+TEST(CalculatorTest, ZeroIsEven) { EXPECT_TRUE(is_even(0)); }
