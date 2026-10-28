@@ -17,7 +17,7 @@ TEST(CalculatorTest, MultipleExpectChecks) {
 }
 
 TEST(CalculatorTest, AssertBeforeDivision) {
-    int divisor = 2;
+    int divisor = 0;
     ASSERT_NE(divisor, 0);
     EXPECT_EQ(divide(10, divisor), 5);
 }
