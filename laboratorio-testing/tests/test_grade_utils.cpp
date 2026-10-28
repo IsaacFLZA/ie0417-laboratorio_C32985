@@ -26,3 +26,7 @@ TEST(GradeUtilsTest, GradeBoundaryBetweenFAndD) { EXPECT_EQ(letter_grade(59), 'F
 TEST(GradeUtilsTest, GradeBoundaryBetweenDAndC) { EXPECT_EQ(letter_grade(69), 'D'); EXPECT_EQ(letter_grade(70), 'C'); }
 TEST(GradeUtilsTest, GradeBoundaryBetweenCAndB) { EXPECT_EQ(letter_grade(79), 'C'); EXPECT_EQ(letter_grade(80), 'B'); }
 TEST(GradeUtilsTest, GradeBoundaryBetweenBAndA) { EXPECT_EQ(letter_grade(89), 'B'); EXPECT_EQ(letter_grade(90), 'A'); }
+
+TEST(GradeUtilsTest, GradeAboveMaximumThrowsException) {
+    EXPECT_THROW(letter_grade(101), std::invalid_argument);
+}
