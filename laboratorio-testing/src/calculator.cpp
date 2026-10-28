@@ -8,5 +8,5 @@ int divide(int a, int b) {
     return a / b;
 }
 bool is_even(int number) {
-    return number % 2 == 1;
+    return number % 2 == 0;
 }
