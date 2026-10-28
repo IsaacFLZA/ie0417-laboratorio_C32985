@@ -18,10 +18,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y build-essential cmake
+        run: sudo apt-get update && sudo apt-get install -y build-essential cmake lcov
       - name: Configure CMake
-        run: cmake -S laboratorio-testing -B laboratorio-testing/build
+        run: cmake -S laboratorio-testing -B laboratorio-testing/build -DENABLE_COVERAGE=ON
       - name: Build
         run: cmake --build laboratorio-testing/build --parallel 2
       - name: Run tests
         run: ctest --test-dir laboratorio-testing/build --output-on-failure
+      - name: Generate coverage report
+        run: |
+          cd laboratorio-testing/build
+          lcov --capture --directory . --output-file coverage.info --ignore-errors mismatch
+          lcov --remove coverage.info '/usr/*' '*/_deps/*' '*/tests/*' --output-file coverage_filtered.info --ignore-errors unused
+          genhtml coverage_filtered.info --output-directory coverage_report
+          lcov --summary coverage_filtered.info
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: laboratorio-testing/build/coverage_report/
+          if-no-files-found: error
