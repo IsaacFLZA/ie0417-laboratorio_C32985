@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include "calculator.h"
 #include <random>
-TEST(CalculatorTest, AddPositiveNumbers) { EXPECT_EQ(add(2, 3), 999); }
+TEST(CalculatorTest, AddPositiveNumbers) { EXPECT_EQ(add(2, 3), 5); }
 TEST(CalculatorTest, AddNegativeNumbers) { EXPECT_EQ(add(-2, -3), -5); }
 TEST(CalculatorTest, SubtractNumbers) { EXPECT_EQ(subtract(10, 4), 6); }
 TEST(CalculatorTest, MultiplyNumbers) { EXPECT_EQ(multiply(3, 4), 12); }
