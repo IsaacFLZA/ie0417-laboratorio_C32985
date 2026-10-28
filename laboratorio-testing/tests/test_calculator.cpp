@@ -28,7 +28,7 @@ TEST(CalculatorTest, DividePositiveByNegative) { EXPECT_EQ(divide(10, -2), -5); 
 TEST(CalculatorTest, ZeroIsEven) { EXPECT_TRUE(is_even(0)); }
 
 TEST(CalculatorTest, RandomAdditionsWithFixedSeed) {
-    std::mt19937 generator(54321);
+    std::mt19937 generator(12345);
     std::uniform_int_distribution<int> distribution(-100, 100);
     for (int i = 0; i < 10; i++) {
         int a = distribution(generator);
