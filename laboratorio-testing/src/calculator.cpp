@@ -7,4 +7,6 @@ int divide(int a, int b) {
     if (b == 0) throw std::invalid_argument("No se puede dividir entre cero");
     return a / b;
 }
-bool is_even(int number) { return number % 2 == 0; }
+bool is_even(int number) {
+    return number % 2 == 1;
+}
