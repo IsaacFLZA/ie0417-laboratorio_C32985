@@ -30,3 +30,10 @@ TEST(GradeUtilsTest, GradeBoundaryBetweenBAndA) { EXPECT_EQ(letter_grade(89), 'B
 TEST(GradeUtilsTest, GradeAboveMaximumThrowsException) {
     EXPECT_THROW(letter_grade(101), std::invalid_argument);
 }
+
+TEST(GradeUtilsTest, ValidGradeTypical) { EXPECT_TRUE(is_valid_grade(85)); }
+TEST(GradeUtilsTest, InvalidGradeTypical) { EXPECT_FALSE(is_valid_grade(150)); }
+TEST(GradeUtilsTest, ValidGradeLowerBoundary) { EXPECT_TRUE(is_valid_grade(0)); }
+TEST(GradeUtilsTest, ValidGradeUpperBoundary) { EXPECT_TRUE(is_valid_grade(100)); }
+TEST(GradeUtilsTest, InvalidGradeBelowMinimum) { EXPECT_FALSE(is_valid_grade(-1)); }
+TEST(GradeUtilsTest, InvalidGradeAboveMaximum) { EXPECT_FALSE(is_valid_grade(101)); }
